@@ -21,6 +21,7 @@ import pyci
 __all__ = [
     "make_senzero_integrals",
     "reduce_senzero_integrals",
+    "naturalize_orbs",
     "spinize_rdms",
 ]
 
@@ -88,6 +89,31 @@ def reduce_senzero_integrals(h, v, w, nocc):
     rw *= factor
     rw += w
     return rv, rw
+
+
+def naturalize_orbs(op, d1):
+    r"""
+    Transform a ``pyci.secondquant_op`` to its natural orbital representation
+    using the eigenvalues of the 1-particle RDM.
+
+    Parameters
+    ----------
+    op : pyci.secondquant_op
+        Second-quantized operator.
+    d1 : numpy.ndarray
+        FullCI 1-RDM spin blocks.
+
+    Returns
+    -------
+    op : pyci.secondquant_op
+        Second-quantized operator with naturalized orbitals.
+
+    """
+    u = np.linalg.eigh(d1.sum(axis=0)).eigenvectors
+    one_mo = np.einsum("pq,Pp,Qq->PQ", op.one_mo, u, u, optimize=True)
+    two_mo = np.einsum("pqrs,Pp,Qq,Rr,Ss->PQRS", op.two_mo, u, u, u, u, optimize=True)
+    op = pyci.secondquant_op(op.ecore, one_mo, two_mo)
+    return op
 
 
 def spinize_rdms(d1, d2):

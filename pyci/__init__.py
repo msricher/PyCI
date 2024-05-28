@@ -23,7 +23,8 @@ from .pyci import get_num_threads, set_num_threads, popcnt, ctz
 from .pyci import compute_overlap, compute_rdms, compute_transition_rdms
 from .pyci import add_hci, compute_enpt2
 
-from .utility import make_senzero_integrals, reduce_senzero_integrals, spinize_rdms
+from .utility import make_senzero_integrals, reduce_senzero_integrals
+from .utility import naturalize_orbs, spinize_rdms
 from .utility import odometer_one_spin, odometer_two_spin
 
 from .excitation_ci import add_excitations

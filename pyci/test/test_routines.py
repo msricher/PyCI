@@ -181,6 +181,28 @@ def test_compute_transition_rdms(filename, wfn_type, occs, energy):
 @pytest.mark.parametrize(
     "filename, wfn_type, occs, energy",
     [
+        ("he_ccpvqz", pyci.fullci_wfn, (1, 1), -2.886809116),
+        ("be_ccpvdz", pyci.fullci_wfn, (2, 2), -14.600556994),
+    ],
+)
+def test_naturalize_orbs(filename, wfn_type, occs, energy):
+    ham = pyci.secondquant_op(datafile("{0:s}.fcidump".format(filename)))
+    wfn = wfn_type(ham.nbasis, *occs)
+    wfn.add_all_dets()
+    op = pyci.sparse_op(ham, wfn)
+    es, cs = op.solve(n=1, ncv=30, tol=1.0e-6)
+    d1, d2 = pyci.compute_rdms(wfn, cs[0])
+    natural_ham = pyci.naturalize_orbs(ham, d1, inplace=True)
+    natural_wfn = wfn_type(natural_ham.nbasis, *occs)
+    natural_wfn.add_hartreefock_det()
+    natural_op = pyci.sparse_op(natural_ham, natural_wfn)
+    natural_es, _ = natural_op.solve(n=1, ncv=30, tol=1.0e-6)
+    npt.assert_allclose(natural_es, es, rtol=0.0, atol=1.0e-9)
+
+
+@pytest.mark.parametrize(
+    "filename, wfn_type, occs, energy",
+    [
         ("he_ccpvqz", pyci.fullci_wfn, (1, 1), -2.902410878),
         ("li2_ccpvdz", pyci.doci_wfn, (3, 3), -14.878455349),
         ("be_ccpvdz", pyci.doci_wfn, (2, 2), -14.600556994),

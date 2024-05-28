@@ -168,18 +168,7 @@ SQuantOp::SQuantOp(const double e, const Array<double> mo1, const Array<double> 
     h = reinterpret_cast<double *>(h_array.request().ptr);
     v = reinterpret_cast<double *>(v_array.request().ptr);
     w = reinterpret_cast<double *>(w_array.request().ptr);
-    long n1 = nbasis;
-    long n2 = nbasis * n1;
-    long n3 = nbasis * n2;
-    long i, j, k = 0, l = 0;
-    for (i = 0; i != n1; ++i) {
-        h[k++] = one_mo[i * (n1 + 1)];
-        for (j = 0; j != n1; ++j) {
-            v[l] = two_mo[i * n3 + i * n2 + j * n1 + j];
-            w[l++] =
-                two_mo[i * n3 + j * n2 + i * n1 + j] * 2 - two_mo[i * n3 + j * n2 + j * n1 + i];
-        }
-    }
+    update_senzero_integrals();
 }
 
 void SQuantOp::to_file(const std::string &filename, const long nelec, const long ms2,
@@ -220,6 +209,21 @@ void SQuantOp::to_file(const std::string &filename, const long nelec, const long
         }
 
     f << std::setw(28) << std::setprecision(20) << std::scientific << ecore << " 0 0 0 0\n";
+}
+
+void SQuantOp::update_senzero_integrals() {
+    long n1 = nbasis;
+    long n2 = nbasis * n1;
+    long n3 = nbasis * n2;
+    long i, j, k = 0, l = 0;
+    for (i = 0; i != n1; ++i) {
+        h[k++] = one_mo[i * (n1 + 1)];
+        for (j = 0; j != n1; ++j) {
+            v[l] = two_mo[i * n3 + i * n2 + j * n1 + j];
+            w[l++] =
+                two_mo[i * n3 + j * n2 + i * n1 + j] * 2 - two_mo[i * n3 + j * n2 + j * n1 + i];
+        }
+    }
 }
 
 } // namespace pyci

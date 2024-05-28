@@ -295,6 +295,8 @@ public:
     SQuantOp(const double, const Array<double>, const Array<double>);
 
     void to_file(const std::string &, const long, const long, const double) const;
+
+    void update_senzero_integrals();
 };
 
 /* Wave function classes. */
